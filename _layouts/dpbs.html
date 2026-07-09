@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="{{ page.lang }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ page.title }} — {{ page.author }}</title>
+<meta name="description" content="{{ page.description }}">
+{%- comment -%}
+  These were '/' and '/es/' while the article was a repository of its own, and
+  a baseurl carried them the rest of the way. Here the baseurl is empty and the
+  article is one page among several, so each alternate has to name itself.
+{%- endcomment -%}
+{%- if page.lang == 'es' -%}
+  {%- assign en_url = page.translation.url -%}
+  {%- assign es_url = page.url -%}
+{%- else -%}
+  {%- assign en_url = page.url -%}
+  {%- assign es_url = page.translation.url -%}
+{%- endif %}
+<link rel="canonical" href="{{ page.url | absolute_url }}">
+<link rel="alternate" hreflang="en" href="{{ en_url | absolute_url }}">
+<link rel="alternate" hreflang="es" href="{{ es_url | absolute_url }}">
+<link rel="alternate" hreflang="x-default" href="{{ en_url | absolute_url }}">
+<link rel="preload" as="font" type="font/woff2" href="{{ '/assets/fonts/charis-400.woff2' | relative_url }}" crossorigin>
+<style>
+/* ===============================================================
+   Figure 1 draws two beings joined by two arcs. The solid arc is
+   explicit communication — the words actually said. The dashed arc
+   is implicit communication — the shared context that makes the
+   words mean anything.
+
+   That is this page's rule system, and it carries information:
+
+     solid rule   the article speaking (title, the principles)
+     dashed rule  the context around it (contents, captions, credits)
+
+   In the margin, the principle you are reading turns from dashed to
+   solid. Where you are is explicit; the rest is context.
+   =============================================================== */
+
+/* ---------------------------------------------------------------
+   Charis SIL is Charter's free descendant. Matthew Carter cut
+   Charter in 1987 for 300dpi printers — coarse output, the world
+   this article was set and displayed in. Subset here to the 118
+   characters the site actually uses, keeping kerning and the real
+   small capitals; the labels never fake them from full caps.
+   --------------------------------------------------------------- */
+
+@font-face {
+  font-family: "Charis SIL";
+  src: url("{{ '/assets/fonts/charis-400.woff2' | relative_url }}") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Charis SIL";
+  src: url("{{ '/assets/fonts/charis-400-italic.woff2' | relative_url }}") format("woff2");
+  font-weight: 400; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: "Charis SIL";
+  src: url("{{ '/assets/fonts/charis-700.woff2' | relative_url }}") format("woff2");
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+
+:root {
+  /* One family to read in. Charter is the metric-compatible ancestor
+     and ships with macOS, so the swap is nearly invisible there. */
+  --text: "Charis SIL", Charter, "Bitstream Charter", Georgia, serif;
+  /* Mono means one thing only: this is code. Never a label, never a caption. */
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --paper:       #f4f4f1;
+  --ink:         #191b1f;
+  --ink-soft:    #565a61;
+  --ink-faint:   #8b9096;
+  --rule:        #c6c7c1;
+  --accent:      #2c5aa0;   /* the Blue Book */
+  --accent-tint: #e6edf7;
+  --code-bg:     #e6e6e1;
+
+  /* The two arcs, as CSS. 3px of line, 5px of air. */
+  --arc-implicit: repeating-linear-gradient(to right, var(--rule) 0 3px, transparent 3px 8px);
+
+  /* 66 characters, the measure Bringhurst calls ideal for a single
+     column. Note 1ch is the width of "0", which in Charis is 0.563em —
+     wider than the average lowercase letter. So 66ch would set about
+     75 characters. 55ch measures out to 66. Verified, not guessed. */
+  --measure: 55ch;
+
+  --step--1: clamp(0.875rem, 0.845rem + 0.15vw, 0.9375rem);
+  --step-0:  clamp(1.0625rem, 1.02rem + 0.22vw, 1.1875rem);
+  --step-1:  clamp(1.2rem, 1.14rem + 0.3vw, 1.35rem);
+  --step-3:  clamp(2.05rem, 1.5rem + 2.4vw, 3.05rem);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper:       #101215;
+    --ink:         #e3e5e1;
+    --ink-soft:    #979da4;
+    --ink-faint:   #6a7077;
+    --rule:        #2f333a;
+    --accent:      #8fb3e8;
+    --accent-tint: #1a2434;
+    --code-bg:     #1c1f25;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: 2rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+body {
+  margin: 0;
+  padding: 0 1.5rem 5rem;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--text);
+  font-size: var(--step-0);
+  line-height: 1.62;
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+  hanging-punctuation: first last;
+}
+
+a { color: var(--accent); text-underline-offset: 0.16em; text-decoration-thickness: 1px; }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* Keyboard readers should not have to walk the seventeen links first. */
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--paper);
+  color: var(--accent);
+  padding: 0.7rem 1rem;
+  z-index: 10;
+}
+.skip:focus { left: 0.5rem; top: 0.5rem; }
+
+/* --- the page ------------------------------------------------- */
+
+.page { max-width: var(--measure); margin: 0 auto; }
+
+/* Wide enough for a margin: the contents move out beside the text and
+   stay there, tracking the reading. Below this, they sit on top. */
+@media (min-width: 78rem) {
+  .page {
+    display: grid;
+    grid-template-columns: 13.5rem minmax(0, var(--measure));
+    column-gap: 5rem;
+    justify-content: center;
+    max-width: none;
+    align-items: start;
+  }
+  /* Masthead and colophon bookend both columns; the reading column and
+     its margin sit between them. */
+  .masthead { grid-column: 1 / -1; grid-row: 1; }
+  .contents { grid-column: 1; grid-row: 2; position: sticky; top: 2.5rem; align-self: start;
+              max-height: calc(100dvh - 5rem); overflow-y: auto; }
+  .prose    { grid-column: 2; grid-row: 2; }
+  .colophon { grid-column: 1 / -1; grid-row: 3; }
+}
+
+/* --- masthead ------------------------------------------------- */
+
+.masthead {
+  padding-top: 5rem;
+  padding-bottom: 2.4rem;
+  margin-bottom: 3rem;
+  border-bottom: 1px solid var(--rule);   /* solid: the article speaks */
+}
+
+.eyebrow {
+  margin: 0 0 1.5rem;
+  font-size: var(--step--1);
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
+}
+
+.masthead h1 {
+  margin: 0 0 1.2rem;
+  font-size: var(--step-3);
+  line-height: 1.07;
+  font-weight: 400;
+  letter-spacing: -0.008em;
+  text-wrap: balance;
+}
+
+.byline { margin: 0; font-size: var(--step-0); }
+.byline b { font-weight: 700; }
+
+.affiliation {
+  margin: 0.3rem 0 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  line-height: 1.55;
+  font-style: italic;
+}
+
+.lang {
+  margin-top: 2rem;
+  font-size: var(--step--1);
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.1em;
+}
+.lang-current { color: var(--ink-soft); }
+.lang-sep { color: var(--rule); margin: 0 0.55em; }
+.lang-alt { color: var(--accent); text-decoration: none; }
+.lang-alt:hover, .lang-alt:focus-visible { text-decoration: underline; }
+
+/* --- contents: implicit, therefore dashed --------------------- */
+
+.contents { margin-bottom: 4rem; }
+
+.contents summary {
+  margin: 0 0 1.2rem;
+  padding-bottom: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  cursor: pointer;
+  list-style: none;
+  font-size: var(--step--1);
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
+  background-image: var(--arc-implicit);
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+  background-position: bottom left;
+}
+.contents summary::-webkit-details-marker { display: none; }
+
+/* Folded away, the heading needs no room beneath it. */
+.contents details:not([open]) > summary { margin-bottom: 0; }
+
+/* On a phone the seventeen would bury the article, so they fold away.
+   Without JS the list stays open — visible beats hidden. The chevron says
+   so at every width, because the control exists at every width. */
+.contents summary::after {
+  content: "›";
+  display: inline-block;
+  font-variant-caps: normal;
+  letter-spacing: 0;
+  color: var(--ink-faint);
+  transition: rotate 150ms ease-out;
+}
+.contents details[open] > summary::after { rotate: 90deg; }
+
+.contents summary:hover::after,
+.contents summary:focus-visible::after { color: var(--accent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .contents summary::after { transition: none; }
+}
+
+.contents ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--step--1);
+  line-height: 1.3;
+}
+
+@media (min-width: 34rem) and (max-width: 77.999rem) {
+  .contents ol { columns: 2; column-gap: 2.5rem; }
+}
+
+.contents li { margin-bottom: 0.62rem; break-inside: avoid; }
+
+.contents a {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55em;
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+
+/* The lead-in is the dashed arc, at a fixed length. Where you are, the
+   same arc turns solid. The line does not grow; its quality changes. */
+.contents a::before {
+  content: "";
+  flex: none;
+  width: 1.5rem;
+  height: 1px;
+  translate: 0 -0.28em;
+  background-image: var(--arc-implicit);
+  background-size: 8px 1px;
+  transition: background-color 200ms ease-out;
+}
+
+.contents .n { color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+
+.contents a:hover, .contents a:focus-visible { color: var(--ink); }
+.contents a:hover .t { text-decoration: underline; }
+
+.contents a[aria-current="true"] {
+  color: var(--ink);
+}
+.contents a[aria-current="true"]::before {
+  background-image: none;
+  background-color: var(--accent);   /* solid: you are here */
+}
+.contents a[aria-current="true"] .n { color: var(--accent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .contents a::before { transition: none; }
+}
+
+/* --- prose ---------------------------------------------------- */
+
+.prose { counter-reset: principle; }
+
+/* Ragged right. Browsers have no Knuth-Plass; justifying here would
+   only open rivers. Butterick, Practical Typography: don't. */
+.prose p {
+  margin: 0 0 1.4em;
+  text-align: left;
+  hyphens: manual;
+  text-wrap: pretty;
+}
+
+/* Except when the measure gets so short that the rag turns ugly. */
+@media (max-width: 32rem) {
+  .prose p { hyphens: auto; }
+}
+
+.prose h2 {
+  margin: 4rem 0 1.8rem;
+  font-size: var(--step-0);
+  font-weight: 400;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.16em;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+.prose ul { margin: 0 0 1.4em; padding-left: 1.2rem; }
+.prose li { margin-bottom: 0.6em; }
+.prose li::marker { color: var(--ink-faint); font-size: 0.8em; }
+
+code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  background: var(--code-bg);
+  padding: 0.1em 0.32em;
+  border-radius: 2px;
+  overflow-wrap: break-word;
+}
+
+/* --- the seventeen principles: solid, therefore explicit ------- */
+/*
+   A run-in sidehead, the way a book sets one: the name leads the
+   sentence rather than floating above it, so the colon Ingalls wrote
+   still does its work. The number is a CSS counter, so it counts
+   correctly in either language and #p7 is the same principle in both.
+*/
+
+.principle {
+  counter-increment: principle;
+  position: relative;
+  scroll-margin-top: 2rem;
+  margin: 2.8rem 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--rule);
+  transition: background-color 200ms ease-out;
+}
+
+.principle > p {
+  margin: 0;
+  font-size: var(--step-1);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.principle > p > strong {
+  font-weight: 400;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.07em;
+  color: var(--ink);
+}
+
+/* The number hangs in the margin once there is a margin to hang in. */
+.principle > p > strong::before {
+  content: counter(principle, decimal-leading-zero);
+  margin-right: 0.8em;
+  color: var(--accent);
+  font-variant-caps: normal;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.82em;
+  letter-spacing: 0;
+}
+
+/* Hang the number in the margin only once the margin is wide enough to
+   hold it: at 50rem the page still has 79px of gutter, the number needs 54. */
+@media (min-width: 50rem) {
+  .principle > p > strong::before {
+    position: absolute;
+    left: -3.4rem;
+    top: 1.5rem;
+    margin-right: 0;
+    line-height: 1.5;
+  }
+}
+
+/* Negative margin plus equal padding grows the box outward: the tint and the
+   rule reach the same edge, and not one word of the text moves. */
+.principle:target {
+  background-color: var(--accent-tint);
+  border-top-color: var(--accent);
+  margin-inline: -0.9rem;
+  padding-inline: 0.9rem;
+  padding-bottom: 0.9rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .principle { transition: none; }
+}
+
+/* --- figures: the caption is context, so it is dashed ---------- */
+
+figure { margin: 3.4rem 0; }
+
+figure img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto 1.2rem;
+  /* 1-bit line art on a white ground. Multiply drops the white so the
+     drawing sits on the paper instead of on a white card. */
+  mix-blend-mode: multiply;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* A 1-bit display inverts. So does the drawing — then screen drops
+     the now-black ground. */
+  figure img { filter: invert(1); mix-blend-mode: screen; }
+}
+
+figcaption {
+  padding-top: 1rem;
+  background-image: var(--arc-implicit);
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+  background-position: top left;
+  font-size: var(--step--1);
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+figcaption b { color: var(--ink); font-weight: 700; }
+
+/* --- colophon: context ---------------------------------------- */
+
+.colophon {
+  margin-top: 5rem;
+  padding-top: 1.6rem;
+  /* The source URL is one long unbreakable word. On a 320px screen it would
+     push the whole page sideways. */
+  overflow-wrap: break-word;
+  background-image: var(--arc-implicit);
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+  background-position: top left;
+  font-size: var(--step--1);
+  line-height: 1.75;
+  color: var(--ink-soft);
+}
+.colophon a { color: var(--ink-soft); }
+.colophon a:hover { color: var(--accent); }
+.colophon .citation { display: block; margin-bottom: 0.7rem; color: var(--ink); }
+
+/* --- print ---------------------------------------------------- */
+
+@media print {
+  :root {
+    --paper: #fff; --ink: #000; --ink-soft: #333; --ink-faint: #666;
+    --rule: #000; --accent: #000; --accent-tint: transparent;
+  }
+  body { font-size: 10.5pt; padding: 0; }
+  .skip, .lang, .contents { display: none; }
+  .principle, figure { break-inside: avoid; }
+  .prose h2 { break-after: avoid; }
+  figure img { mix-blend-mode: normal; filter: none; }
+  a { text-decoration: none; }
+}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#article">{{ page.skip_label }}</a>
+
+<div class="page">
+
+  <header class="masthead">
+    <p class="eyebrow">{{ page.eyebrow }}</p>
+    <h1>{{ page.title }}</h1>
+    <p class="byline"><b>{{ page.author }}</b></p>
+    <p class="affiliation">{{ page.affiliation_lines | join: '<br>' }}</p>
+    <nav class="lang" aria-label="{{ page.lang_nav_label }}">
+      <span class="lang-current" aria-current="page">{{ page.lang | upcase }}</span><span class="lang-sep">·</span><a class="lang-alt" href="{{ page.translation.url | relative_url }}" hreflang="{{ page.translation.hreflang }}" lang="{{ page.translation.hreflang }}" title="{{ page.translation.label }}">{{ page.translation.hreflang | upcase }}</a>
+    </nav>
+  </header>
+
+  {% if page.principles %}
+  <nav class="contents" aria-labelledby="contents-heading">
+    <details id="contents" open>
+      <summary id="contents-heading">{{ page.index_heading }}</summary>
+      <ol>
+        {%- for p in page.principles %}
+        <li><a href="#p{{ forloop.index }}"><span class="n">{% if forloop.index < 10 %}0{% endif %}{{ forloop.index }}</span><span class="t">{{ p }}</span></a></li>
+        {%- endfor %}
+      </ol>
+    </details>
+  </nav>
+  {% endif %}
+
+  <main class="prose" id="article">
+    {{ content }}
+  </main>
+
+  <footer class="colophon">
+    <span class="citation">{{ page.citation }}</span>
+    {{ page.footer_note }}<br>
+    {{ page.footer_source }}
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  // The contents ship open, so a reader without JS always sees them. On a
+  // phone they would push the article off the screen, so fold them there.
+  var contents = document.getElementById('contents');
+  if (contents) contents.open = window.matchMedia('(min-width: 48rem)').matches;
+
+  // Carry the reader's place across the language switch: /es/#p7 lands on
+  // the same principle. Without JS the link still reaches the page.
+  var alt = document.querySelector('.lang-alt');
+  if (alt) {
+    var base = alt.getAttribute('href');
+    var sync = function () { alt.setAttribute('href', base + location.hash); };
+    sync();
+    window.addEventListener('hashchange', sync);
+  }
+
+  // Mark the principle being read. The margin turns dashed into solid.
+  var principles = document.querySelectorAll('.principle');
+  var links = document.querySelectorAll('.contents a');
+  if (!principles.length || !links.length || !('IntersectionObserver' in window)) return;
+
+  var current = null;
+  var mark = function (id) {
+    if (id === current) return;
+    current = id;
+    links.forEach(function (a) {
+      if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true');
+      else a.removeAttribute('aria-current');
+    });
+  };
+
+  var seen = new Set();
+  // The band reaches the top of the viewport on purpose. Landing on /es/#p7
+  // parks the principle just under the top edge; a band that started lower
+  // would leave the margin marking nothing at all.
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) seen.add(e.target.id);
+      else seen.delete(e.target.id);
+    });
+    // The topmost principle in the band is the one being read.
+    var ids = Array.from(principles).map(function (p) { return p.id; }).filter(function (id) { return seen.has(id); });
+    if (ids.length) mark(ids[0]);
+  }, { rootMargin: '0px 0px -60% 0px' });
+
+  principles.forEach(function (p) { observer.observe(p); });
+
+  // A direct link should light the margin up before a single scroll happens.
+  var fromHash = function () {
+    var id = location.hash.slice(1);
+    if (/^p\d+$/.test(id)) mark(id);
+  };
+  fromHash();
+  window.addEventListener('hashchange', fromHash);
+})();
+</script>
+
+</body>
+</html>
