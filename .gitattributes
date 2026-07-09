@@ -1,0 +1,5 @@
+# SIL ships the licence with CRLF. Leave it exactly as it arrived, or every run
+# of tools/subset-fonts.sh rewrites it and dirties the tree for no reason.
+assets/fonts/OFL.txt -text
+
+*.woff2 binary

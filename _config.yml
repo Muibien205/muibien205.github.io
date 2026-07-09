@@ -1,0 +1,28 @@
+title: Gastón Caruso
+description: >-
+  Writing about Smalltalk, objects, and the design of systems small enough to
+  understand — in English and Spanish.
+author: Gastón Caruso
+url: https://gstn-caruso.github.io
+repo: https://github.com/gstn-caruso/gstn-caruso.github.io
+
+# A user site is served from the root, so there is no baseurl and a link
+# written /assets/… reaches assets. Project pages under this account — the
+# Smalltalk mirror among them — keep their own baseurl and are untouched.
+baseurl: ""
+
+markdown: kramdown
+kramdown:
+  input: GFM
+
+# Otherwise a feed built on a laptop and a feed built on a runner disagree
+# about what time it was, and every push rewrites every <updated>.
+timezone: America/Argentina/Buenos_Aires
+
+# tools/ builds assets/fonts/. It is provenance, not a page.
+exclude:
+  - README.md
+  - tools
+  - Gemfile
+  - Gemfile.lock
+  - vendor
