@@ -8,8 +8,8 @@ eyebrow: Writing
 standfirst: >-
   On Smalltalk, objects, and the design of systems small enough to understand.
 description: >-
-  Gastón Caruso — writing on Smalltalk, objects, and the design of systems
-  small enough to understand.
+  Gastón Caruso — on Smalltalk and object design. No trackers, no analytics:
+  the site doesNotUnderstand: #you.
 translation:
   url: /es/
   label: Español

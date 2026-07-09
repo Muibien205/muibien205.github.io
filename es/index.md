@@ -9,8 +9,8 @@ standfirst: >-
   Sobre Smalltalk, objetos y el diseño de sistemas lo bastante chicos como para
   entenderlos.
 description: >-
-  Gastón Caruso — escritos sobre Smalltalk, objetos y el diseño de sistemas lo
-  bastante chicos como para entenderlos.
+  Gastón Caruso — sobre Smalltalk y el diseño de objetos. Sin rastreadores ni
+  analíticas: el sitio doesNotUnderstand: #vos.
 translation:
   url: /
   label: English
