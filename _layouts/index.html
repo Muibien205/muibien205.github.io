@@ -1,0 +1,35 @@
+---
+layout: house
+---
+{%- assign chrome = site.data.strings[page.lang] -%}
+
+  <header class="masthead">
+    <p class="eyebrow">{{ page.eyebrow }}</p>
+    <h1>{{ page.title }}</h1>
+    <p class="standfirst">{{ page.standfirst }}</p>
+    {% include lang-nav.html %}
+  </header>
+
+  <main id="main">
+    <ol class="entries">
+      {%- assign entries = site.data.entries | sort: 'date' | reverse -%}
+      {%- assign running_year = '' -%}
+      {%- for entry in entries -%}
+      {%- assign said = entry[page.lang] -%}
+      {%- assign year = entry.date | date: '%Y' -%}
+      <li class="entry">
+        {%- if year != running_year %}
+        <span class="entry-year">{{ year }}</span>
+        {%- endif %}
+        <h2 class="entry-title">
+          <a href="{{ said.url }}"{% if entry.away %} rel="external"{% endif %}>{{ said.title }}{%- if entry.away -%}
+            <span class="away" aria-hidden="true">&#8599;</span><span class="sr-only"> ({{ chrome.away }})</span>
+          {%- endif -%}</a>
+        </h2>
+        <p class="entry-meta">{{ said.eyebrow }}</p>
+        <p class="entry-blurb">{{ said.blurb }}</p>
+      </li>
+      {%- assign running_year = year -%}
+      {%- endfor %}
+    </ol>
+  </main>

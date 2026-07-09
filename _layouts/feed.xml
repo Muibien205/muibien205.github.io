@@ -1,0 +1,26 @@
+{%- assign entries = site.data.entries | sort: 'date' | reverse -%}
+{%- assign home = page.home -%}
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="{{ page.lang }}">
+  <title>{{ site.title | xml_escape }}</title>
+  <subtitle>{{ page.description | xml_escape }}</subtitle>
+  <id>{{ home | absolute_url }}</id>
+  <link rel="alternate" type="text/html" href="{{ home | absolute_url }}"/>
+  <link rel="self" type="application/atom+xml" href="{{ page.url | absolute_url }}"/>
+  <updated>{{ entries.first.date | date_to_xmlschema }}</updated>
+  <author><name>{{ site.author | xml_escape }}</name></author>
+  <rights>&#169; {{ 'now' | date: '%Y' }} {{ site.author | xml_escape }}</rights>
+{%- for entry in entries %}
+{%- assign said = entry[page.lang] %}
+  <entry>
+    <title>{{ said.title | xml_escape }}</title>
+    <!-- An entry that lives in another repository is still this site's entry.
+         Its id and its link are the address it actually answers at. -->
+    <id>{{ said.url | absolute_url }}</id>
+    <link rel="alternate" type="text/html" href="{{ said.url | absolute_url }}"/>
+    <updated>{{ entry.date | date_to_xmlschema }}</updated>
+    <published>{{ entry.date | date_to_xmlschema }}</published>
+    <summary>{{ said.blurb | strip_newlines | xml_escape }}</summary>
+  </entry>
+{%- endfor %}
+</feed>
